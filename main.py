@@ -100,3 +100,8 @@ if __name__ == "__main__":
     qt.set_当前屏幕_最下方(ez.config.默认显示器, 1, ez.config.ui高度比例)
 
     sys.exit(app.exec())
+
+
+# git branch -M main
+# git remote add origin git@github.com:lrlbh/auto_shell.git
+# git push -u origin main
