@@ -1,5 +1,6 @@
 
 import os.path
+import keyboard
 import struct
 
 from PyQt6.QtWidgets import (
@@ -11,7 +12,7 @@ import tl.all
 import tl.dir
 import tl.qt
 import os
-from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtCore import QObject, QTimer, Qt, pyqtSignal
 import ez.config
 import ez.pub
 from PyQt6.QtGui import QFont, QTextCursor
@@ -97,9 +98,17 @@ def 运行():
         # 4. 保存到目标变量
         ez.pub.send_msg = tmep_data
 
+    # 创建按键
     but = QPushButton(ez.pub.mw)
     but.setText("run(f2)")
     but.clicked.connect(on_change)
+
+    # 注册快捷键
+    class Bridge(QObject):
+        trigger = pyqtSignal()
+    bridge = Bridge()
+    bridge.trigger.connect(on_change)
+    keyboard.add_hotkey('F2', lambda: bridge.trigger.emit())
 
     return but
 

@@ -16,8 +16,8 @@ def file_exists(path):
         return False
 
 
-def ensure_dir_for_file(path):
-    """确保文件所在目录存在，不存在则递归创建,必须携带文件名"""
+def mkdir(path):
+    """确保文件所在目录存在，不存在则递归创建,必须携带文件名或者分隔符/aa/bb/"""
     dir_path = path.rsplit("/", 1)[0]
     if not dir_path:
         return  # 文件在根目录，直接返回
@@ -79,11 +79,11 @@ def get_files_md5(root_dir, ignore_list=None):
     ignore_set = set(ignore_list) if ignore_list else set()
     result = {}
     stack = [(root_dir, "")]
-    
+
     # 预分配缓冲区，减少循环内内存分配
     # 4096 字节通常是性能与内存的最佳平衡点
     buf_size = 4096
-    read_buf = bytearray(buf_size) 
+    read_buf = bytearray(buf_size)
 
     while stack:
         curr_path, rel_prefix = stack.pop()
@@ -92,17 +92,17 @@ def get_files_md5(root_dir, ignore_list=None):
         for entry in os.ilistdir(curr_path):
             name = entry[0]
             etype = entry[1]
-            
+
             if name in ignore_set:
                 continue
-            
+
             # 尽量减少字符串操作
             full_path = curr_path + "/" + name
             rel_path = (rel_prefix + "/" + name) if rel_prefix else name
-            
+
             if etype & 0x4000:  # 目录
                 stack.append((full_path, rel_path))
-            elif etype & 0x8000: # 文件
+            elif etype & 0x8000:  # 文件
                 h = hashlib.md5()
                 with open(full_path, "rb") as f:
                     while True:
@@ -114,10 +114,10 @@ def get_files_md5(root_dir, ignore_list=None):
                             h.update(read_buf)
                         else:
                             h.update(memoryview(read_buf)[:n])
-                
+
                 # 只有在最后存入字典时处理 key 格式
                 result["/" + rel_path] = binascii.hexlify(h.digest()).decode()
-                
+
     return result
 
 # def get_files_md5(root_dir, ignore_list=None):

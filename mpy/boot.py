@@ -2,9 +2,6 @@ import machine
 import time
 import _thread
 import json
-import sys
-from lib_lsl import tl
-import uio  # type: ignore
 import socket
 import json
 import struct
@@ -37,7 +34,7 @@ async def read(r):
     '''
     暂不处理，但别忘了
         - 非S3,文件太大爆内存
-        - 大量数据重复拷贝
+        - 存在大量数据重复拷贝
     '''
 
     while True:
@@ -54,7 +51,7 @@ async def read(r):
             # 获取文件名
             file_name = await r.readexactly(struct.unpack('>I', await r.readexactly(4))[0])
             file_name_str = file_name.decode("utf-8")  # 文件名转字符串方便发送日志查看
-            lib_lsl.tl.ensure_dir_for_file(file_name_str)  # 确保目录存在
+            lib_lsl.tl.mkdir(file_name_str)  # 确保目录存在
 
             # 创建文件
             with open(file_name,  "wb") as f:
@@ -116,12 +113,6 @@ async def 多任务():
         f"获取md5耗时: {time.ticks_diff(time.ticks_ms(), t0)} ms")
 
     # 4、连接服务器
-    """
-        发: 4字节长度 + JSON数据 {"文件名": hash, ...}
-        收: 4字节文件个数 + [4字节文件名长度 + 文件名 + 0x02 + 文件内容] * 文件个数
-
-        如果为了方便异步，可以如果文件个数 == 0 不处理,解除阻塞
-    """
     while True:
         lib_lsl.send_war("尝试一次tcp连接")
         try:
@@ -168,7 +159,7 @@ def run():
 
     # 主线程运行main
     try:
-        import main1
+        import main
     except Exception as e:
         # 用户错误返回完整错误信息
         lib_lsl.send_err(lib_lsl.tl.get_完整错误信息(e))

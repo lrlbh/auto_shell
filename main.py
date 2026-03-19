@@ -2,6 +2,10 @@
 
 # import ui.head1
 # import ui.head2
+import threading
+
+import keyboard
+
 import ui.log
 import 独立任务.init_lr
 import ui
@@ -98,6 +102,7 @@ if __name__ == "__main__":
     # 默认屏幕
     ez.pub.mw.show()
     qt.set_当前屏幕_最下方(ez.config.默认显示器, 1, ez.config.ui高度比例)
+
 
     sys.exit(app.exec())
 
