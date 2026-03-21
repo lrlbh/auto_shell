@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QComboBox
 from tl.qt import log_widget
-import ui
 
 mw = None
 

@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QGuiApplication
 
-import time
 from datetime import datetime
 
 from PyQt6.QtCore import QTimer, QEventLoop
@@ -34,7 +33,6 @@ def get_逻辑像素(index):
     screens = QApplication.screens()
 
     if 0 <= index < len(screens):
-
         target_screen = screens[index]
 
         # size() 返回的是考虑缩放后的逻辑分辨率
@@ -56,13 +54,13 @@ def get_屏幕列表():
     for index, screen in enumerate(screens):
         info = {
             "index": index,
-            "name": screen.name(),          # 操作系统识别的设备名
-            "model": screen.model(),        # 显示器型号（可能为空）
+            "name": screen.name(),  # 操作系统识别的设备名
+            "model": screen.model(),  # 显示器型号（可能为空）
             "manufacturer": screen.manufacturer(),  # 制造商
             "resolution": f"{screen.size().width()}x{screen.size().height()}",
             "refresh_rate": f"{screen.refreshRate()}Hz",
             "is_primary": screen == QGuiApplication.primaryScreen(),
-            "device_pixel_ratio": screen.devicePixelRatio()  # 缩放比例（如 1.25, 1.5, 2.0）
+            "device_pixel_ratio": screen.devicePixelRatio(),  # 缩放比例（如 1.25, 1.5, 2.0）
         }
         monitor_list.append(info)
 

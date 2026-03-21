@@ -1,11 +1,15 @@
-
 import os.path
 import keyboard
 import struct
 
 from PyQt6.QtWidgets import (
-    QComboBox, QVBoxLayout, QWidget,
-    QTextEdit, QPushButton, QFileDialog, QCompleter,
+    QComboBox,
+    QVBoxLayout,
+    QWidget,
+    QTextEdit,
+    QPushButton,
+    QFileDialog,
+    QCompleter,
 )
 
 import tl.all
@@ -28,10 +32,11 @@ import ui.lib
 def 选择项目目录():
     def on_change():
         directory = QFileDialog.getExistingDirectory(
-            None,                # 父窗口对象
-            "选择目录",           # 对话框标题
-            ez.config.选择项目默认路径,             # 默认打开的路径
-            QFileDialog.Option.ShowDirsOnly  # 选项：只显示目录
+            None,  # 父窗口对象
+            "选择目录",  # 对话框标题
+            ez.config.选择项目默认路径,  # 默认打开的路径
+            # QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog # 不卡
+            QFileDialog.Option.ShowDirsOnly,  # 选项：只显示目录 卡
         )
 
         if directory:
@@ -57,41 +62,46 @@ def 运行():
         # 获取需要忽略的文件和目录
         try:
             t_mod = tl.dir.import_path(
-                os.path.join(ez.pub.选中的项目目录, "boot_run.py"))
+                os.path.join(ez.pub.选中的项目目录, "boot_run.py")
+            )
             忽略列表 = t_mod.忽略的文件和目录
-        except:
+        except:  # noqa: E722
             忽略列表 = []
 
         local_md5 = tl.dir.get_files_md5(ez.pub.选中的项目目录, 忽略列表)
 
-        for file in [k for k in tl.dir.get_files_md5(ez.pub.选中的项目目录) if k not in local_md5]:
-            ez.pub.日志控件.cyan(f"忽略文件 -> {file}", ez.pub.日志字体默认大小)
-
         新增文件 = [k for k in local_md5 if k not in ez.pub.cli_ip]
         修改文件 = [
-            k for k in local_md5.keys() & ez.pub.cli_ip.keys()
+            k
+            for k in local_md5.keys() & ez.pub.cli_ip.keys()
             if local_md5[k] != ez.pub.cli_ip[k]
         ]
 
         需要更新文件 = 新增文件 + 修改文件
 
-        for file in [k for k in local_md5 if k not in 修改文件]:
-            ez.pub.日志控件.cyan(f"相同文件 -> {file}", ez.pub.日志字体默认大小)
+        # 显示完整文件处理 --> 忽略的、相同的、新增的、修改的
+        # for file in [
+        #     k for k in tl.dir.get_files_md5(ez.pub.选中的项目目录) if k not in local_md5
+        # ]:
+        #     ez.pub.日志控件.cyan(f"忽略文件 -> {file}", ez.pub.日志字体默认大小)
 
-        for file in 新增文件:
-            ez.pub.日志控件.cyan(f"新增文件 -> {file}", ez.pub.日志字体默认大小)
+        # for file in [k for k in local_md5 if k not in 修改文件]:
+        #     ez.pub.日志控件.cyan(f"相同文件 -> {file}", ez.pub.日志字体默认大小)
 
-        for file in 修改文件:
-            ez.pub.日志控件.cyan(f"修改文件 -> {file}", ez.pub.日志字体默认大小)
+        # for file in 新增文件:
+        #     ez.pub.日志控件.cyan(f"新增文件 -> {file}", ez.pub.日志字体默认大小)
 
-        tmep_data = struct.pack('>I', len(需要更新文件))
+        # for file in 修改文件:
+        #     ez.pub.日志控件.cyan(f"修改文件 -> {file}", ez.pub.日志字体默认大小)
+
+        tmep_data = struct.pack(">I", len(需要更新文件))
 
         for file in 需要更新文件:
-            with open(os.path.join(ez.pub.选中的项目目录, file.lstrip('/')), 'rb') as f:
+            with open(os.path.join(ez.pub.选中的项目目录, file.lstrip("/")), "rb") as f:
                 content = f.read()
 
-            item_header = struct.pack('>I', len(file.encode())) + file.encode()
-            item_body = struct.pack('>I', len(content)) + content
+            item_header = struct.pack(">I", len(file.encode())) + file.encode()
+            item_body = struct.pack(">I", len(content)) + content
 
             tmep_data += item_header + item_body
 
@@ -106,9 +116,10 @@ def 运行():
     # 注册快捷键
     class Bridge(QObject):
         trigger = pyqtSignal()
+
     bridge = Bridge()
     bridge.trigger.connect(on_change)
-    keyboard.add_hotkey('F2', lambda: bridge.trigger.emit())
+    keyboard.add_hotkey("F2", lambda: bridge.trigger.emit())
 
     return but
 
@@ -147,8 +158,7 @@ def 选择文件():
             return
 
         # keys排序 深度优先排序 (按路径层级)
-        ret = sorted(ez.pub.cli_ip.keys(),
-                     key=lambda x: (x.count('/'), x.lower()))
+        ret = sorted(ez.pub.cli_ip.keys(), key=lambda x: (x.count("/"), x.lower()))
         ez.pub.文件输入框.addItems(ret)
 
         # 选择款加入智能提示
@@ -218,7 +228,7 @@ def 删除():
 #         print(屏幕["name"])
 
 #     combo.activated.connect(on_change)
-  
+
 #     return combo
 
 
