@@ -29,9 +29,9 @@ def 选择屏幕():
         current_id = combo.itemData(index)
         # print(f"id = {current_id}")
         tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
-        tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
-        tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
-        tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
+        # tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
+        # tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
+        # tl.qt.set_当前屏幕_最下方(current_id, 1, ez.config.ui高度比例)
 
     # 创建下拉框
     combo = QComboBox(ez.pub.mw)
@@ -40,8 +40,8 @@ def 选择屏幕():
     # 添加选项
     for 屏幕 in tl.qt.get_屏幕列表():
         combo.addItem(屏幕["name"], 屏幕["index"])
-        print(屏幕["index"])
-        print(屏幕["name"])
+        # print(屏幕["index"])
+        # print(屏幕["name"])
 
     combo.setCurrentIndex(ez.config.默认显示器)
 

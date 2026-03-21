@@ -1,7 +1,7 @@
 import socket
 
 
-class _tests():
+class _udp_log():
     def __init__(self):
 
         # try:
@@ -15,13 +15,15 @@ class _tests():
         # if tl.file_exists("/boot_run.py") or tl.file_exists("/Alr/boot_run.py"):
         #     self.ok = True
 
-        self.ok = False
+        self.udp_print = False
         self.ip = None
         self.port = 9001
+        self.print = False
         self._cnt = 0
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.war = "warning_lr"
-        self.err = "error_lr"
+        self.war = "warning_lr "
+        self.err = "error_lr "
+        self.ok = "ok_lr "
 
     def set_addr(self, ip=None, port=None):
         if ip is not None:
@@ -29,52 +31,42 @@ class _tests():
         if port is not None:
             self.port = port
 
-    def send(self, *args):
-        if not self.ok:
-            return
+    def _send(self, *args, hed=""):
 
-        self._cnt += 1
-        try:
-            msg = " ".join(map(str, args))
-            self.sock.sendto("{} {}".format(
-                self._cnt, msg).encode(), (self.ip, self.port))
-        except:
-            pass
+        if self.print:
+            print(*args)
+
+        if self.udp_print:
+            self._cnt += 1
+            try:
+                msg = " ".join(map(str, args))
+                self.sock.sendto("{}{} {}".format(
+                    hed, self._cnt, msg).encode(), (self.ip, self.port))
+            except:
+                pass
+
+    def send(self, *args):
+        self._send(*args)
+
+    def send_diy(self, *args, hed=""):
+        self._send(*args, hed=hed)
 
     def send_war(self, *args):
-        if not self.ok:
-            return
-
-        self._cnt += 1
-        try:
-            msg = " ".join(map(str, args))
-            self.sock.sendto("{} {} {}".format(
-                self.war, self._cnt, msg).encode(), (self.ip, self.port))
-        except:
-            pass
+        self._send(*args, hed=self.war)
 
     def send_err(self, *args):
-        if not self.ok:
-            return
+        self._send(*args, hed=self.err)
 
-        self._cnt += 1
-        try:
-            msg = " ".join(map(str, args))
-            self.sock.sendto("{} {} {}".format(
-                self.err, self._cnt, msg).encode(), (self.ip, self.port))
-        except:
-            pass
+    def send_ok(self, *args):
+        self._send(*args, hed=self.ok)
 
 
-_test = _tests()
+_ul = _udp_log()
 
 
-set_addr = _test.set_addr
-send = _test.send
-send_war = _test.send_war
-send_err = _test.send_err
-
-
-# print("初始化")
-# set_addr("sad","asdas","asda")
-# send("asdf","sadf")
+set_addr = _ul.set_addr
+send = _ul.send
+send_war = _ul.send_war
+send_err = _ul.send_err
+send_ok = _ul.send_ok
+send_diy = _ul.send_diy

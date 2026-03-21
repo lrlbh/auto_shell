@@ -22,7 +22,6 @@ dns_server = "192.168.1.1"
     # "lib_lsl",
     # "boot.py",
     # "boot_run.py",
-    "ESP32_GENERIC_S3-20250809-v1.26.0.bin",
 
 
     "__pycache__",

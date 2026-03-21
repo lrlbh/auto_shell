@@ -62,7 +62,7 @@ async def read(r):
                 f"{file_name_str} -> size: {t/1024:0.2f}KiB -> 耗时:{time.ticks_diff(time.ticks_ms(), t0)}ms")
 
         lib_lsl.send_war("更新成功")
-
+        await asyncio.sleep_ms(20)
         machine.reset()
 
 
@@ -78,10 +78,10 @@ async def 多任务():
     wifi = lib_lsl.WIFI(account=boot_run.wifi信息组, static=boot_run.静态ip,
                         ip=boot_run.ip, 子网掩码=boot_run.子网掩码,
                         网关=boot_run.网关, dns_server=boot_run.dns_server)
-    wifi.conn_one(boot_run.ssid, boot_run.pwd)    # 阻塞连一下，为了计算耗时
-
+    wifi.conn_one(boot_run.ssid, boot_run.pwd)    # 人为阻塞连一下，为了计算耗时
     asyncio.create_task(wifi.conn_async(
         boot_run.ssid, boot_run.pwd))  # 携程中维护wifi连接
+    await asyncio.sleep_ms(0)   # 让出一次时间，给携程创建
     t_log = f"连接wifi耗时: {time.ticks_diff(time.ticks_ms(), t0)} ms"
 
     # 2、获取广播的服务器IP地址
@@ -91,14 +91,16 @@ async def 多任务():
         try:
             ip, 更新端口, 日志端口 = get_ip()
             break
-        except Exception:
-            time.sleep(0.5)
+        except Exception as e:
+            await asyncio.sleep_ms(500)
+
     更新端口 = int(更新端口)
     日志端口 = int(日志端口)
     lib_lsl.set_addr(ip, 日志端口)
-    lib_lsl._test.ok = True
+    lib_lsl._ul.udp_print = True
     lib_lsl.send_war("\n\n\n\n\n")
     lib_lsl.send_war(t_log)
+    # lib_lsl.send_war(id(wifi))
     lib_lsl.send_war(
         f"获取server_ip耗时: {time.ticks_diff(time.ticks_ms(), t0)} ms")
 
@@ -154,7 +156,7 @@ def run():
     _thread.start_new_thread(子线程, ())
 
     # 获取到server_ip后在运行main
-    while lib_lsl._test.ip is None:
+    while lib_lsl._ul.ip is None:
         time.sleep(0.1)
 
     # 主线程运行main
@@ -163,7 +165,6 @@ def run():
     except Exception as e:
         # 用户错误返回完整错误信息
         lib_lsl.send_err(lib_lsl.tl.get_完整错误信息(e))
-        print(lib_lsl.tl.get_完整错误信息(e))
 
     raise Exception("正常结束,但避免系统调用main")
 

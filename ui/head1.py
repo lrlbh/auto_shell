@@ -138,7 +138,7 @@ def 选择文件():
 
     def 更新输入框内容():
         nonlocal old_file, old_size
-        if old_file == ez.pub.cli_ip or old_size == ez.pub.文件输入框.font():
+        if old_file == ez.pub.cli_ip and old_size == ez.pub.文件输入框.font():
             return
 
         # 文件添加到选择框
@@ -218,7 +218,7 @@ def 删除():
 #         print(屏幕["name"])
 
 #     combo.activated.connect(on_change)
-
+  
 #     return combo
 
 

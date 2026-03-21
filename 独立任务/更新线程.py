@@ -42,6 +42,7 @@ def send(c_soket: socket.socket, addr):
                 time.sleep(0.05)
                 continue
             c_soket.sendall(ez.pub.send_msg)
+            ez.pub.日志控件.cyan("发送成功")
             ez.pub.send_msg = None
     except:
         c_soket.close()

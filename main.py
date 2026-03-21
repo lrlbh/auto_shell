@@ -1,11 +1,3 @@
-
-
-# import ui.head1
-# import ui.head2
-import threading
-
-import keyboard
-
 import ui.log
 import 独立任务.init_lr
 import ui
@@ -103,10 +95,11 @@ if __name__ == "__main__":
     ez.pub.mw.show()
     qt.set_当前屏幕_最下方(ez.config.默认显示器, 1, ez.config.ui高度比例)
 
-
     sys.exit(app.exec())
 
 
 # git branch -M main
 # git remote add origin git@github.com:lrlbh/auto_shell.git
 # git push -u origin main
+# esptool --chip esp32S3 --port COM36  erase_flash
+# esptool --chip ESP32S3 --port COM36 write_flash -z 0x0 c:\Users\82542\code\py\MicroPython\mod\camera_lr\res\00ee9e2--2\ESP32_GENERIC_S3-SPIRAM_OCT-v1.27.0-00ee9e3.bin
