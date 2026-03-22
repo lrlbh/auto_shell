@@ -1,11 +1,16 @@
+import os
+import webbrowser
+
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtGui import QGuiApplication
 
 from datetime import datetime
-
+import re
 from PyQt6.QtCore import QTimer, QEventLoop
 from PyQt6.QtGui import QTextCursor, QTextCharFormat, QColor, QFont, QTextBlockFormat
 from PyQt6.QtWidgets import QTextEdit, QApplication
+from PyQt6.QtWidgets import QTextBrowser
+import sys
 
 
 def get_当前屏幕编号(widget):
@@ -114,12 +119,13 @@ def set_当前屏幕_最下方(screen_index, w, h):
         # main_widget.setMaximumWidth(target_w)
 
 
-class log_widget(QTextEdit):
+class log_widget(QTextBrowser):
     def __init__(self, parent=None):
         super().__init__(parent)
         # self.setStyleSheet("background-color: black;")
         self.setReadOnly(True)
         self.msg = []
+        self.setOpenExternalLinks(False)
 
         # 创建一个 QTextBlockFormat 对象并设置行间距
         # block_format = QTextBlockFormat()
@@ -149,6 +155,26 @@ class log_widget(QTextEdit):
 
         # 启动定时器
         timer.start()
+
+    def mousePressEvent(self, event):
+        # 1. 获取点击位置的光标和文本块
+        cursor = self.cursorForPosition(event.pos())
+        full_text = cursor.block().text().strip()
+
+        # 2. 使用正则表达式精准提取路径和行号
+        # 匹配模式：查找 File "路径", line 行号
+        pattern = r'File "(.*?)", line (\d+)'
+        match = re.search(pattern, full_text)
+
+        if match:
+            file_path = match.group(1).replace("\\", "/")  # 统一斜杠
+            line_num = match.group(2)
+            webbrowser.open(f"vscode://file/{file_path}:{line_num}")
+            # os.system(f'code -g "{file_path}:{line_num}"')
+
+        # 记得调用父类方法，否则可能会影响默认行为（如滚动、选择）
+        super().mousePressEvent(event)
+
 
     # 日志加上时间戳
     @staticmethod

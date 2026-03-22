@@ -35,8 +35,9 @@ def 选择项目目录():
             None,  # 父窗口对象
             "选择目录",  # 对话框标题
             ez.config.选择项目默认路径,  # 默认打开的路径
-            # QFileDialog.Option.ShowDirsOnly | QFileDialog.Option.DontUseNativeDialog # 不卡
-            QFileDialog.Option.ShowDirsOnly,  # 选项：只显示目录 卡
+            QFileDialog.Option.ShowDirsOnly
+            | QFileDialog.Option.DontUseNativeDialog,  # 不卡
+            # QFileDialog.Option.ShowDirsOnly,  # 选项：只显示目录 卡
         )
 
         if directory:

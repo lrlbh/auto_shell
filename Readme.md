@@ -29,5 +29,9 @@ pip install keyboard
 
 # UI 
 pip install PyQt6
+
+# VSCODE，不需要了,URL似乎跳转稍快一点
+vscode加入环境变量，可以使用code命令跳转到错误文件
+默认安装vscode有时会自动加入有时不会，没有关注什么原因
 ~~~
 

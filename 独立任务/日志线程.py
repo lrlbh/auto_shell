@@ -25,7 +25,8 @@ def run():
                     abs_path = os.path.join(ez.pub.选中的项目目录, filepath)
                     line = line.replace(filepath, abs_path)
             lines.append(line)
-        return "\n".join(lines)
+
+        return "\n".join(lines).replace("/", "\\")
 
     udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     udp_sock.bind(("0.0.0.0", ez.config.日志端口))
