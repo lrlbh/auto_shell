@@ -4,16 +4,15 @@ import asyncio
 import collections
 import _thread
 
-import lib_lsl
 try:
     import wifilr
-except:
+except:  # noqa: E722
     pass
 
 
 # 有多次初始化需求
 # 多次初始化，返回第一次的对象，只修改v6公网参数
-class WIFI():
+class WIFI:
     _单例对象 = None
     _is_init = False
     _is_task_run = False
@@ -24,13 +23,21 @@ class WIFI():
             cls._单例对象 = super(WIFI, cls).__new__(cls)
         return cls._单例对象
 
-    def __init__(self, account={"12345678": "12345678",
-                                "CMCC-Ef6Z": "ddtzpts9",
-                                "CMCC-vKWf": "7vzpycp6",
-                                "CMCC-luoyuan": "A13466179775"},
-                 v6公网=False, static=False,
-                 ip="192.168.1.189", 子网掩码="255.255.255.0",
-                 网关="192.168.1.1", dns_server="192.168.1.1"):
+    def __init__(
+        self,
+        account={
+            "12345678": "12345678",
+            "CMCC-Ef6Z": "ddtzpts9",
+            "CMCC-vKWf": "7vzpycp6",
+            "CMCC-luoyuan": "A13466179775",
+        },
+        v6公网=False,
+        static=False,
+        ip="192.168.1.189",
+        子网掩码="255.255.255.0",
+        网关="192.168.1.1",
+        dns_server="192.168.1.1",
+    ):
 
         # 如果已经初始化过了
         if WIFI._is_init:
@@ -53,7 +60,7 @@ class WIFI():
 
         self.单个wifi尝试时间ms = 30_000
         self.检查间隔ms = 1_000
-        self.单次v6协商等待时间ms = 120_000
+        self.单次v6协商等待时间ms = 60_000
 
         self.static_ip = (ip, 子网掩码, 网关, dns_server)
 
@@ -79,16 +86,16 @@ class WIFI():
         ret_acc = collections.OrderedDict()
 
         # 获取周围信号，然后按照信号强度排序
-        周围信号 = sorted(self.wlan.scan(), key=lambda x: x[3], reverse=True)
+        周围信号 = sorted(self.wlan.scan(), key=lambda x: x[3], reverse=True)  # type: ignore
 
         # 本地wifi账号 和 周围wifi账号的交集
         for 单个周围信号 in 周围信号:
             try:
                 ssid = 单个周围信号[0].decode("utf-8")
-            except:
+            except:  # noqa: E722
                 continue
             if ssid in self.account:
-                ret_acc[ssid] = self.account[ssid]
+                ret_acc[ssid] = self.account[ssid]  # type: ignore
 
         return ret_acc
 
@@ -108,7 +115,7 @@ class WIFI():
                 if WIFI.is_公网_v6(v6):
                     return v6s
             time.sleep_ms(间隔ms)
-        raise OSError(f"超时,没有获取到公网ipv6")
+        raise OSError("超时,没有获取到公网ipv6")
 
     # 我遇到的ipv6公网地址都是是2开头
     # 这是gpt实现的函数，我没有查证ipv6分配规则
@@ -176,7 +183,7 @@ class WIFI():
             # 连接wifi
             for sid in acc:
                 self.wlan.disconnect()
-                self.wlan.connect(sid, acc[sid])
+                self.wlan.connect(sid, acc[sid])  # type: ignore
                 t0 = time.ticks_ms()
                 while time.ticks_diff(time.ticks_ms(), t0) < self.单个wifi尝试时间ms:
                     if self.wlan.isconnected():
@@ -209,11 +216,11 @@ class WIFI():
                     return  # 成功获取到公网地址
             time.sleep_ms(30)
 
-    '''
+    """
         携程版本
             1、别忘记复制粘贴一份conn_one和get_v6函数
             2、并且修改get_v6()函数名字
-    '''
+    """
 
     async def conn_one_async(self, ssid=None, passwd=None):
         # 协商v6公网
@@ -225,7 +232,7 @@ class WIFI():
             # 连接wifi
             for sid in acc:
                 self.wlan.disconnect()
-                self.wlan.connect(sid, acc[sid])
+                self.wlan.connect(sid, acc[sid]) # type: ignore
                 t0 = time.ticks_ms()
                 while time.ticks_diff(time.ticks_ms(), t0) < self.单个wifi尝试时间ms:
                     if self.wlan.isconnected():

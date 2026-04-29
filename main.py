@@ -101,7 +101,7 @@ if __name__ == "__main__":
 # git branch -M main
 # git remote add origin git@github.com:lrlbh/auto_shell.git
 # git push -u origin main
-# esptool --chip esp32S3 --port COM36  erase_flash
+# esptool  --port COM14  erase-flash
 # esptool --chip ESP32S3 --port COM36 write_flash -z 0x0 c:\Users\82542\code\py\MicroPython\mod\camera_lr\res\00ee9e2--2\ESP32_GENERIC_S3-SPIRAM_OCT-v1.27.0-00ee9e3.bin
 
 # python.analysis.typeCheckingMode

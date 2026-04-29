@@ -1,7 +1,7 @@
 import socket
 
 
-class _udp_log():
+class _udp_log:
     def __init__(self):
 
         # try:
@@ -40,9 +40,10 @@ class _udp_log():
             self._cnt += 1
             try:
                 msg = " ".join(map(str, args))
-                self.sock.sendto("{}{} {}".format(
-                    hed, self._cnt, msg).encode(), (self.ip, self.port))
-            except:
+                self.sock.sendto(
+                    "{}{} {}".format(hed, self._cnt, msg).encode(), (self.ip, self.port)
+                )
+            except:  # noqa: E722
                 pass
 
     def send(self, *args):

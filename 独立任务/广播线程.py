@@ -15,5 +15,5 @@ def run():
     }).encode()
 
     while True:
-        sock.sendto(message, ("255.255.255.255", ez.config.广播端口))
+        sock.sendto(message, ("192.168.1.255", ez.config.广播端口))
         time.sleep(ez.config.广播间隔)

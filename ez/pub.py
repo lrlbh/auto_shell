@@ -13,8 +13,10 @@ cli_ip = None
 
 日志控件: log_widget = None
 
-日志字体默认大小 = 18
+日志字体默认大小 = 15
 
 send_msg = None
 
 shell项目目录 = ""
+
+com选择框: QComboBox = None

@@ -1,16 +1,23 @@
-
 import os.path
+import re
+import subprocess
 
 from PyQt6.QtWidgets import (
-    QComboBox, QMessageBox, QVBoxLayout, QWidget,
-    QTextEdit, QPushButton, QFileDialog, QCompleter,
+    QComboBox,
+    QMessageBox,
+    QVBoxLayout,
+    QWidget,
+    QTextEdit,
+    QPushButton,
+    QFileDialog,
+    QCompleter,
 )
 
 import tl.all
 import tl.dir
 import tl.qt
 import os
-from PyQt6.QtCore import QTimer, Qt
+from PyQt6.QtCore import QThread, QTimer, Qt
 import ez.config
 import ez.pub
 from PyQt6.QtGui import QFont, QTextCursor
@@ -70,15 +77,15 @@ def 生成依赖():
 
         依赖目录 = os.path.join(ez.pub.shell项目目录, "mpy")
         file_path = tl.dir.get_files_path(
-            依赖目录, ["__pycache__", "boot.py", "boot_run.py"])
+            依赖目录, ["__pycache__", "boot.py", "boot_run.py"]
+        )
         # print(file_path)
         for file_name in file_path:
             with open(file_name, "rb") as f:
                 file_data = f.read()
 
             # 相对路径
-            file_name = file_name.replace(
-                str(依赖目录), "").lstrip("\\/")
+            file_name = file_name.replace(str(依赖目录), "").lstrip("\\/")
 
             # 写入文件
             tl.dir.ensure_path_exists(os.path.join(ez.pub.选中的项目目录, file_name))
@@ -98,15 +105,16 @@ def 生成boot():
     @ui.lib.选择项目没
     def on_change(checked=None):
         依赖目录 = os.path.join(ez.pub.shell项目目录, "mpy")
-        file_path = [os.path.join(依赖目录, "boot.py"),
-                     os.path.join(依赖目录, "boot_run.py")]
+        file_path = [
+            os.path.join(依赖目录, "boot.py"),
+            os.path.join(依赖目录, "boot_run.py"),
+        ]
         for file_name in file_path:
             with open(file_name, "rb") as f:
                 file_data = f.read()
 
             # 相对路径
-            file_name = file_name.replace(
-                str(依赖目录), "").lstrip("\\/")
+            file_name = file_name.replace(str(依赖目录), "").lstrip("\\/")
 
             # 写入文件
             with open(os.path.join(ez.pub.选中的项目目录, file_name), "wb") as f:
@@ -157,4 +165,85 @@ def 日志字体():
 
     combo.activated.connect(on_change)
 
+    return combo
+
+
+@head.add
+def 串口显示():
+
+    最新com口 = []
+    当前com口 = []
+
+    # def on_change(index):
+    #     font_size = combo.currentText()
+    #     ez.pub.日志字体默认大小 = int(font_size)
+
+    # 创建下拉框
+    combo = QComboBox(ez.pub.mw)
+    combo.setMinimumHeight(8)
+    # combo.activated.connect(on_change)
+
+    # 创建一个继承自 QThread 的类，并重写 run 方法
+    class PortWorker(QThread):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+
+        def run(self):
+            nonlocal 最新com口
+            while True:
+                try:
+                    # 获取串口设备
+                    # 运行 PowerShell 命令
+                    command = """powershell -Command "Get-WmiObject Win32_PnPEntity | Where-Object {$_.Name -like '*(COM*)'} | Select-Object Name, Description\\ " """
+                    result = subprocess.run(
+                        command,
+                        capture_output=True,
+                        text=True,
+                        shell=True,
+                        # encoding="utf-8",
+                    )
+
+                    # 解析输出结果
+                    output_lines = result.stdout.splitlines()
+                    serial_ports = []
+                    for line in output_lines:
+                        match = re.match(r"(.*) \(COM(\d+)\)", line)
+                        if match:
+                            port_name = f"COM{match.group(2)}"
+                            description = match.group(1)
+                            if "蓝牙链接上的标准串行" in description:
+                                continue
+                            # serial_ports.append(port_name + "-->" + description)
+                            serial_ports.append(port_name)
+
+                    最新com口 = serial_ports
+                except:  # noqa: E722
+                    最新com口 = []
+
+        def stop(self):
+            self.terminate()  # 终止线程
+            self.wait()  # 等待线程结束
+            print("com线程结束")
+
+    # 创建线程
+    thread = PortWorker(ez.pub.mw)
+    thread.start()  # 启动线程
+    ez.pub.mw.destroyed.connect(thread.stop)  # 在窗口关闭时停止线程
+
+    # 定时器回调,更新下拉框
+    def timer_callback():
+        nonlocal 当前com口
+        if 最新com口 == 当前com口:
+            return
+        当前com口 = 最新com口
+        combo.clear()
+        combo.addItems(当前com口)
+
+    # 创建定时器
+    timer = QTimer(ez.pub.mw)
+    timer.timeout.connect(timer_callback)
+    timer.setInterval(100)  # 设置定时器的间隔，单位为毫秒
+    timer.start()  # 启动定时器
+
+    ez.pub.com选择框 = combo
     return combo

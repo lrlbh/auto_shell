@@ -208,6 +208,9 @@ def 删除():
     return but
 
 
+
+
+
 # @head.add
 # def 选择设备():
 #     def on_change(index):

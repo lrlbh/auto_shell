@@ -68,7 +68,7 @@ def build_url(base, path, params=None):
 
 def get_完整错误信息(e):
     buf = io.StringIO()
-    sys.print_exception(e, buf)
+    sys.print_exception(e, buf) # type: ignore
     s = buf.getvalue()
     buf.close()
 
