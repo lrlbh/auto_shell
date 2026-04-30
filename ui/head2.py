@@ -364,3 +364,61 @@ def 上传boot和依赖():
     ez.pub.mw.destroyed.connect(thread.stop)  # 在窗口关闭时停止线程
 
     return but
+
+
+@head.add
+def 上传boot():
+
+    上传标志 = False
+
+    def on_change(checked=None):
+        nonlocal 上传标志
+        上传标志 = True
+
+    but = QPushButton(ez.pub.mw)
+    but.setText("上传boot")
+    but.clicked.connect(on_change)
+
+    # 创建一个继承自 QThread 的类，并重写 run 方法
+    class PortWorker(QThread):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+
+        def run(self):
+            nonlocal 上传标志
+            while True:
+                time.sleep(0.1)
+                if not 上传标志:
+                    continue
+
+                try:
+                    # boot目录
+                    path_list_t = os.path.join(ez.pub.shell项目目录, "mpy")
+                    # boot目录文件
+                    path_list = []
+                    path_list.append(os.path.join(path_list_t, "boot.py"))
+                    path_list.append(os.path.join(path_list_t, "boot_run.py"))
+
+                    # 上传到开发板
+                    Pyb.增量同步文件(
+                        com=ez.pub.com选择框.currentText(),
+                        path_list=path_list,
+                        分割符="\\mpy",
+                    )
+                except Exception as e:
+                    ez.pub.日志控件.error(f"串口上传文件失败: {e}", ez.pub.日志字体大小)
+                else:
+                    ez.pub.日志控件.cyan("串口上传文件成功", ez.pub.日志字体大小)
+                上传标志 = False
+
+        def stop(self):
+            self.terminate()  # 终止线程
+            self.wait()  # 等待线程结束
+            print("com更新boot的线程结束")
+
+    # 创建线程
+    thread = PortWorker(ez.pub.mw)
+    thread.start()  # 启动线程
+    ez.pub.mw.destroyed.connect(thread.stop)  # 在窗口关闭时停止线程
+
+    return but
