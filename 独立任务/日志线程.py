@@ -36,4 +36,4 @@ def run():
         if "Traceback (most recent call last):" in text:
             text = fix_traceback_paths(text)
         if ez.pub.日志控件 is not None:
-            ez.pub.日志控件.all(text, ez.pub.日志字体默认大小)
+            ez.pub.日志控件.all(text, ez.pub.日志字体大小)

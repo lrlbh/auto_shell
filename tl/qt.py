@@ -175,7 +175,6 @@ class log_widget(QTextBrowser):
         # 记得调用父类方法，否则可能会影响默认行为（如滚动、选择）
         super().mousePressEvent(event)
 
-
     # 日志加上时间戳
     @staticmethod
     def __time_str(msg):

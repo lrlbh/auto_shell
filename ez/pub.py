@@ -13,7 +13,7 @@ cli_ip = None
 
 日志控件: log_widget = None
 
-日志字体默认大小 = 15
+日志字体大小 = 15
 
 send_msg = None
 

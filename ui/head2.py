@@ -1,4 +1,6 @@
 import os.path
+from shutil import which
+import time
 import re
 import subprocess
 
@@ -13,6 +15,7 @@ from PyQt6.QtWidgets import (
     QCompleter,
 )
 
+from tl import pyb
 import tl.all
 import tl.dir
 import tl.qt
@@ -27,6 +30,7 @@ import sys
 from PyQt6.QtWidgets import QApplication
 from pathlib import Path
 import ui.lib
+from tl.pyb import Pyb
 
 
 @head.add
@@ -153,7 +157,7 @@ def 控件字体():
 def 日志字体():
     def on_change(index):
         font_size = combo.currentText()
-        ez.pub.日志字体默认大小 = int(font_size)
+        ez.pub.日志字体大小 = int(font_size)
 
     # 创建下拉框
     combo = QComboBox(ez.pub.mw)
@@ -161,7 +165,7 @@ def 日志字体():
     for i in range(6, 67):
         combo.addItem(str(i))
 
-    combo.setCurrentText(str(ez.pub.日志字体默认大小))
+    combo.setCurrentText(str(ez.pub.日志字体大小))
 
     combo.activated.connect(on_change)
 
@@ -247,3 +251,116 @@ def 串口显示():
 
     ez.pub.com选择框 = combo
     return combo
+
+
+# def upload_boot(port):
+#     try:
+
+#                 # 读取文件
+#         with open("lib/boot.py", "rb") as f:
+#             data = f.read()
+
+#         # 打开串口
+#         ser = serial.Serial(port, 115200, timeout=1)
+#         # time.sleep(1)
+
+#         def exec_raw(cmd):
+#             """发送命令并等待OK"""
+#             ser.write(cmd + b"\x04")  # Ctrl-D 执行
+#             out = b""
+#             t0 = time.time()
+#             while time.time() - t0 < 2:
+#                 out += ser.read_all()
+#                 if b"OK" in out or b">>>" in out:
+#                     break
+#                 time.sleep(0.05)
+#             return out
+#         # 进入 raw REPL
+#         ser.write(b"\r\x03")  # Ctrl-C
+#         time.sleep(0.2)
+#         ser.write(b"\r\x03")  # Ctrl-C
+#         time.sleep(0.2)
+#         ser.write(b"\r\x01")  # Ctrl-A
+#         time.sleep(0.2)
+
+#         print("开始上传 boot.py ...")
+#         exec_raw(b"f=open('boot.py','wb')")
+
+#         chunk = 128
+#         for i in range(0, len(data), chunk):
+#             part = data[i : i + chunk]
+#             cmd = b"f.write(" + repr(part).encode() + b")"
+#             exec_raw(cmd)
+
+#         exec_raw(b"f.flush()")
+#         exec_raw(b"f.close()")
+
+#         # 回到普通 REPL
+#         ser.write(b"\x02")  # Ctrl-B
+#         time.sleep(0.2)
+
+#         # 确保写入完成再重启
+#         ser.write(b"import machine; machine.reset()\r")
+#         time.sleep(0.2)
+
+#         ser.close()
+#         print("上传完成，设备已重启。")
+
+#     except Exception as e:
+#         print("错误:", e)
+
+
+@head.add
+def 上传boot和依赖():
+
+    上传标志 = False
+
+    def on_change(checked=None):
+        nonlocal 上传标志
+        上传标志 = True
+
+    but = QPushButton(ez.pub.mw)
+    but.setText("上传完整")
+    but.clicked.connect(on_change)
+
+    # 创建一个继承自 QThread 的类，并重写 run 方法
+    class PortWorker(QThread):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+
+        def run(self):
+            nonlocal 上传标志
+            while True:
+                time.sleep(0.1)
+                if not 上传标志:
+                    continue
+
+                try:
+                    # 依赖目录
+                    path_list = os.path.join(ez.pub.shell项目目录, "mpy")
+                    # 依赖目录下的完整文件
+                    path_list = tl.dir.get_files_path(path_list, 忽略=None)
+
+                    # 上传到开发板
+                    Pyb.增量同步文件(
+                        com=ez.pub.com选择框.currentText(),
+                        path_list=path_list,
+                        分割符="\\mpy",
+                    )
+                except Exception as e:
+                    ez.pub.日志控件.error(f"串口上传文件失败: {e}", ez.pub.日志字体大小)
+                else:
+                    ez.pub.日志控件.cyan("串口上传文件成功", ez.pub.日志字体大小)
+                上传标志 = False
+
+        def stop(self):
+            self.terminate()  # 终止线程
+            self.wait()  # 等待线程结束
+            print("com更新线程结束")
+
+    # 创建线程
+    thread = PortWorker(ez.pub.mw)
+    thread.start()  # 启动线程
+    ez.pub.mw.destroyed.connect(thread.stop)  # 在窗口关闭时停止线程
+
+    return but
