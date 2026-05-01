@@ -1,3 +1,4 @@
+import ui.lib
 import ui.log
 import 独立任务.init_lr
 import ui
@@ -7,14 +8,18 @@ import ez.pub
 import sys
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-
+    QApplication,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
 )
 from pathlib import Path
-
+from PyQt6.QtCore import Qt
 import ez.config
 import tl.qt as qt
 import tl.qt
+from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QPixmap, QColor, QIcon
 
 
 class MyWindow(QWidget):
@@ -52,11 +57,11 @@ class MyWindow(QWidget):
     #     print(f"窗口当前尺寸: {self.width()}x{self.height()}, 计算字号: {new_font_size}")
     #     super().resizeEvent(event)
 
+
 # --- 3. 运行部分 ---
 
 
 if __name__ == "__main__":
-
     ez.pub.shell项目目录 = Path(__file__).resolve().parent
 
     独立任务.init_lr.run()
@@ -90,6 +95,12 @@ if __name__ == "__main__":
 
     # 加入布局
     ez.pub.mw.setLayout(main_layout)
+
+    # 隐藏标题
+    # ez.pub.mw.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+
+    # 加个变量名避免被回收
+    sdfgs = ui.lib.标题更新()
 
     # 默认屏幕
     ez.pub.mw.show()

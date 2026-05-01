@@ -1,4 +1,5 @@
 import datetime
+import time
 import socket
 import os
 import ez.pub
@@ -32,6 +33,7 @@ def run():
     udp_sock.bind(("0.0.0.0", ez.config.日志端口))
     while True:
         data, addr = udp_sock.recvfrom(4096)
+        ez.pub.最后一次日志时间 = time.time()
         text = data.decode(errors="ignore")
         if "Traceback (most recent call last):" in text:
             text = fix_traceback_paths(text)

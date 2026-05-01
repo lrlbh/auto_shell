@@ -21,38 +21,42 @@ def recv_all(sock, n):
     return data
 
 
+# 为了只保留最新单片机,让send线程退出
 当前端口 = None
 
 
-def read(c_soket: socket.socket, addr):
+def read(cs: socket.socket, addr):
     global 当前端口
     try:
         while True:
             当前端口 = addr[1]
-            t_l = struct.unpack("!I", recv_all(c_soket, 4))[0]
-            data = recv_all(c_soket, t_l)
+            t_l = struct.unpack("!I", recv_all(cs, 4))[0]
+            ez.pub.单片机心跳 = time.time()
+            ez.pub.单片机ip = addr[0]
+            ez.pub.单片机端口 = addr[1]
+            data = recv_all(cs, t_l)
             ez.pub.cli_ip = json.loads(data.decode())
     except:  # noqa: E722
-        c_soket.close()
+        cs.close()
 
 
-def send(c_soket: socket.socket, addr):
+def send(cs: socket.socket, addr):
     global 当前端口
     try:
         while True:
             if 当前端口 != addr[1]:
-                c_soket.close()
+                cs.close()
 
             if ez.pub.send_msg is None:
                 time.sleep(0.03)
                 continue
-            c_soket.sendall(ez.pub.send_msg)
+            cs.sendall(ez.pub.send_msg)
             ez.pub.send_msg = None
             # ez.pub.日志控件.cyan("发送成功")
             # ez.pub.日志控件.cyan(str(addr))
 
     except:  # noqa: E722
-        c_soket.close()
+        cs.close()
 
 
 def run():
