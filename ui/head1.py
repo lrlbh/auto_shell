@@ -71,11 +71,11 @@ def 运行():
 
         local_md5 = tl.dir.get_files_md5(ez.pub.选中的项目目录, 忽略列表)
 
-        新增文件 = [k for k in local_md5 if k not in ez.pub.cli_ip]
+        新增文件 = [k for k in local_md5 if k not in ez.pub.dev_file_hash]
         修改文件 = [
             k
-            for k in local_md5.keys() & ez.pub.cli_ip.keys()
-            if local_md5[k] != ez.pub.cli_ip[k]
+            for k in local_md5.keys() & ez.pub.dev_file_hash.keys()
+            if local_md5[k] != ez.pub.dev_file_hash[k]
         ]
 
         需要更新文件 = 新增文件 + 修改文件
@@ -150,16 +150,16 @@ def 选择文件():
 
     def 更新输入框内容():
         nonlocal old_file, old_size
-        if old_file == ez.pub.cli_ip and old_size == ez.pub.文件输入框.font():
+        if old_file == ez.pub.dev_file_hash and old_size == ez.pub.文件输入框.font():
             return
 
         # 文件添加到选择框
         ez.pub.文件输入框.clear()
-        if ez.pub.cli_ip is None:
+        if ez.pub.dev_file_hash is None:
             return
 
         # keys排序 深度优先排序 (按路径层级)
-        ret = sorted(ez.pub.cli_ip.keys(), key=lambda x: (x.count("/"), x.lower()))
+        ret = sorted(ez.pub.dev_file_hash.keys(), key=lambda x: (x.count("/"), x.lower()))
         ez.pub.文件输入框.addItems(ret)
 
         # 选择款加入智能提示
@@ -170,7 +170,7 @@ def 选择文件():
         completer.setFilterMode(Qt.MatchFlag.MatchContains)
         completer.popup().setFont(ez.pub.文件输入框.font())
         ez.pub.文件输入框.setCompleter(completer)
-        old_file = ez.pub.cli_ip
+        old_file = ez.pub.dev_file_hash
         old_size = ez.pub.文件输入框.font()
 
         # 触发一下重新布局

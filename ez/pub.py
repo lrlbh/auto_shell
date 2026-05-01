@@ -9,7 +9,7 @@ mw = None
 
 log = []
 
-cli_ip = None
+dev_file_hash = None
 
 日志控件: log_widget = None
 

@@ -35,7 +35,7 @@ def read(cs: socket.socket, addr):
             ez.pub.单片机ip = addr[0]
             ez.pub.单片机端口 = addr[1]
             data = recv_all(cs, t_l)
-            ez.pub.cli_ip = json.loads(data.decode())
+            ez.pub.dev_file_hash = json.loads(data.decode())
     except:  # noqa: E722
         cs.close()
 
